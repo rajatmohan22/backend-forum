@@ -1,0 +1,125 @@
+<%- include('partials/header') %>
+  <%- include('partials/navbar') %>
+    <h4 class="container mt-3 mb-3">
+      <div class="row">
+        <div class="col-6">
+          Discussions
+        </div>
+      </div>
+    </h4>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-8">
+          <div class="form-outline">
+            <input onkeyup="sendPosts(this)" type="search" id="searchform" class="form-control"
+              placeholder="Search Queries" aria-label="Search" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <% if(allPosts.length>0){ %>
+      <% for(var i=0;i<allPosts.length;i++){ %>
+        <form action="users/<%= allPosts[i].user.id %> " method="get">
+          <div  class="container mt-3 mb-3">
+            <div class="row">
+              <div id="cardbody" class="col-6">
+
+                <div  class="card">
+                  <div class="card-header">
+                    <%= allPosts[i].user.username %> asks...
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      <%= allPosts[i].title %>
+                    </h5>
+                    <p class="card-text">
+                      <%= allPosts[i].body %>
+                    </p>
+                    <button class="btn btn-primary" type="submit">
+                      View Thread
+                    </button>
+
+                  </div>
+                  <div class="card-footer">
+                    <span style="color: red;">
+                      <%= allPosts[i].likes %>
+                    </span> Upvotes
+                    <span style="color: red;">
+                      <br>
+                      <%= allPosts[i].comments.length%>
+                    </span>
+                    <%= allPosts[i].comments.length>1?"Replies":"Reply" %>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </form>
+        <% } %>
+          <% } else { %>
+              <h1>Nothing to showw</h1>
+
+              <% } %>
+                <p id="something"></p>
+
+                <div class="container mt-3 mb-3">
+                  <div class="row">
+                    <div class="col-6">
+                      <form action="ask" method="get">
+                        <button class="btn btn-primary mt-3">Ask A Question</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+
+                <script>
+                  async function sendPosts(e) {
+                    const searchResults = document.getElementById('cardbody')
+                    fetch('/getPosts', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ payload: e.value })
+                    }).then((res) => res.json()).then((data) => {
+                      const payload = data.payload;
+                      console.log("BROOOOOOOOOOOOOOOOo", payload);
+                      if (payload.length < 1) {
+                        const cardBody = document.getElementById('holder');
+                        cardBody.innerHTML = "";
+                        searchResults.innerHTML = '<h1>Sorry, Nothing to display</h1>'
+                      } else {
+                        searchResults.innerHTML = ""
+                        const cardBody = document.getElementById('cardbody')
+                        cardBody.remove
+                        payload.forEach((card, i) => {
+                          cardBody.innerHTML = `<div id ="cardbody" class="card">
+                  <div class="card-header">
+                    ${card.user.username} asks...
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      ${card.title}
+                    </h5>
+                    <p class="card-text">
+                      ${card.body}
+                    </p>
+                    <button class="btn btn-primary" type="submit">
+                      View Thread
+                    </button>
+
+                  </div>
+                  <div class="card-footer">
+                    <span style="color: red;">
+                      ${card.likes}
+                    </span> Upvotes
+                  </div>
+                </div>`
+                        })
+                      }
+                    })
+                  }
+                </script>
+                <%- include('partials/footer') %>
